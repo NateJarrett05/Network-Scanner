@@ -1,17 +1,27 @@
 import scapy.all as scapy
-import argparse
+from socket import *
+import time
+import arguments
 
-def get_args():
-    parser = argparse.ArgumentParser(
-        prog = "Network Scanner",
-        description = "A program to scan for IP(s) on a network."
-    )
+# arguments.get_args()
 
-    parser.add_argument('-t', '--target', dest='target', help='Target IP Address/Adresses')
-    options = parser.parse_args()
+# Works on localhost, not sure about external hosts
+def port_scanner(target):
+    startTime = time.time()
+    target_IP = gethostbyname(target)
+    print('Starting scan on host: ', target_IP)
 
-    # Check for errors I.E. if the user does not specify a target IP address
-    if not options.target:
-        parser.error("[-] Please specify an IP Address or Addresses, use --help for more info.")
+    # Scans ports between the range of 50 and 500
+    for i in range (50, 500):
+        s = socket(AF_INET, SOCK_STREAM)
+        s.settimeout(3)
+        # Attempts to connect to port i on the target IP
+        connection = s.connect_ex((target_IP, i))
 
-    return options
+        if(connection == 0):
+            print('Port %d: OPEN' % (i,))
+        # Closes the socket
+        s.close()
+    print('Time taken:', time.time() - startTime)
+
+port_scanner('localhost')
